@@ -1,0 +1,49 @@
+{
+  "name": "@local/dsh-web-search-router",
+  "version": "0.2.0",
+  "description": "DeepSeek Harness web-search router: official DeepSeek routes keep the DeepSeek path, custom model providers search with their own vendor key, plus a fully custom Anthropic-compatible endpoint. Ships a Plugins-page settings card.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-plugin-manager",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "~3.18.5"
+  },
+  "scripts": {
+    "check": "node --check index.js && node --check client.js",
+    "smoke": "node test/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "web-search",
+    "search-provider",
+    "anthropic-messages"
+  ],
+  "private": true,
+  "license": "MIT"
+}
