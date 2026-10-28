@@ -11,22 +11,50 @@ DSH 内置的 `dsh-web-search-deepseek` 严格要求 Anthropic 的 `web_search_t
 
 本插件先取结构化块，取不到再从正文引用解析 `sources[]`，因此两类端点都能用。
 
-## 安装到 profile
+## 前置条件
 
-在 DSH 的 profile 目录（例如 `~/.dsh/profiles/desktop`）里：
+- DeepSeek Harness 0.2.x（桌面端，或 `dsh web`）
+- Node.js ≥ 22
+- pnpm ≥ 10；若机器上没有 pnpm，可用 DSH 自带 runtime 里的 node + pnpm（命令见下）
 
-```bash
-# 1) 用 link: 而不是 file:，否则 pnpm 会复制一份副本，改源码不生效
-pnpm add "link:F:/Workspace/DSH/plugins/web-search-router"
+## 安装
+
+以下以解压到 `D:\dsh-plugins\web-search-router` 为例，换成自己的绝对路径即可。
+
+### 1. 解压并安装依赖
+
+压缩包不含 `node_modules`，先在插件目录安装自己的依赖（`@deepseek-ai/schemastery`）：
+
+```powershell
+cd D:\dsh-plugins\web-search-router
+pnpm install
 ```
 
-`package.json` 中应得到：
+没有 pnpm 时，用 DSH runtime：
+
+```powershell
+$rt = "$env:USERPROFILE\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies"
+& "$rt\node\bin\node.exe" "$rt\pnpm\bin\pnpm.mjs" install
+```
+
+### 2. 链接进 profile
+
+```powershell
+cd "$env:USERPROFILE\.dsh\profiles\desktop"
+pnpm add "link:D:/dsh-plugins/web-search-router"
+```
+
+（没有 pnpm 时同样用上面的 `node pnpm.mjs add "link:D:/dsh-plugins/web-search-router"`。）
+
+安装后 profile 的 `package.json` 应出现：
 
 ```json
-"@local/dsh-web-search-router": "link:F:/Workspace/DSH/plugins/web-search-router"
+"@local/dsh-web-search-router": "link:D:/dsh-plugins/web-search-router"
 ```
 
-然后在 profile 的 `cordis.patch.yml` 里接线：
+> 必须用 `link:`，不要用 `file:`：`file:` 协议下 pnpm 会复制包内容，运行时读副本，改源码不生效。
+
+### 3. 在 profile 的 `cordis.patch.yml` 里接线
 
 ```yaml
 - id: web
@@ -39,9 +67,27 @@ pnpm add "link:F:/Workspace/DSH/plugins/web-search-router"
       name: "@local/dsh-web-search-router"
 ```
 
-> `link:` 前缀是必须的：`file:` 协议下 pnpm 会复制包内容，运行时读副本，源码改动不生效。
+- `id` 决定 settings 命名空间，界面表单按它绑定，保持 `web-search-router` 不要改。
+- `name` 必须与包名一致，Client 半侧按包名挂载。
 
-重启 DSH 让 Host 加载插件（见「开发」）。
+### 4. 重启 DSH
+
+完全退出应用再启动（只关窗口不够）；Web 端则重启 `dsh web` 进程。Host 侧代码与 `Config` 只在启动时加载。
+
+### 5. 验证
+
+- 界面：插件 → 内置插件配置 → 网页搜索路由，应能看到 `自动 / 自定义端点` 两个选项。
+- 搜索：让模型搜一次；若开了 `debugLog`，可看日志是否新增一行：
+
+  ```json
+  {"at":"...","label":"Vendor (ksyun)","providerId":"ksyun","endpoint":"https://kspmas.ksyun.com/v1/messages","model":"deepseek-v4.1-flash-1017"}
+  ```
+
+## 卸载
+
+1. 删除 `cordis.patch.yml` 里的 `- id: web` 覆盖与 `web-search-router` 插入项（或把 `searchProvider` 改回 `deepseek-official`）；
+2. `pnpm remove @local/dsh-web-search-router`；
+3. 可选：删除插件目录。
 
 ## 配置
 

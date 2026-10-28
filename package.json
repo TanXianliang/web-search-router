@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-web-search-router",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "DeepSeek Harness web-search router: official DeepSeek routes keep the DeepSeek path, custom model providers search with their own vendor key, plus a fully custom Anthropic-compatible endpoint. Ships a Plugins-page settings card.",
   "type": "module",
   "main": "index.js",
